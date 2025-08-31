@@ -85,23 +85,37 @@ router.put("/:id/session", verifyToken, async (req, res) => {
 // Close current session
 router.post("/:adminId/close-session", async (req, res) => {
   const { adminId } = req.params;
-  
+
   try {
     // 1. Update admin session
     await Admin.findByIdAndUpdate(adminId, { currentSession: false });
+    console.log(await Admin.findByIdAndUpdate(adminId, { currentSession: false }));
+    
 
-    // 2. Deactivate all active tickets for this admin
-    await Ticket.updateMany(
-      { busId: adminId, active: true }, 
+    // 2. Find all active tickets before deactivating (to return them in response)
+    const activeTickets = await Ticket.find({ busId: adminId, active: true });
+    console.log(activeTickets);
+    
+
+    // 3. Deactivate them
+    const updateResult = await Ticket.updateMany(
+      { busId: adminId, active: true },
       { $set: { active: false } }
     );
+    console.log(updateResult);
+    
 
-    res.json({ message: "Session closed and tickets archived" });
+    res.json({
+      message: "Session closed and tickets archived",
+      modifiedCount: updateResult.modifiedCount, // how many tickets were updated
+      deactivatedTickets: activeTickets           // return the ticket data
+    });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error closing session:", err);
     res.status(500).json({ error: "Failed to close session" });
   }
 });
+
 
 
 export default router;
