@@ -8,6 +8,7 @@ import busRoutes from "./routes/busRoutes.js";
 import ticketRoutes from "./routes/ticketRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import userAuthRoutes from "./routes/userAuthRoutes.js";
+import passRoutes from "./routes/passRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -36,6 +37,7 @@ db.once("open", () => {
 // ✅ API Routes
 app.use("/api/buses", busRoutes);
 app.use("/api/tickets", ticketRoutes);
+app.use("/api/passes", passRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", userAuthRoutes); // 👈 User Register/Login
 
